@@ -1,4 +1,4 @@
-using AdminDashboard.Data;
+using Code123.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Code123

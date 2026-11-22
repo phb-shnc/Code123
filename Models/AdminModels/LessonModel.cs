@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
-namespace AdminDashboard.Models 
+namespace Code123.Models
 {
-    public class LessonModel : IdentityModel
+    public class LessonModel : IEntity
     {
         [BindNever] public int Id { get; set; }
 

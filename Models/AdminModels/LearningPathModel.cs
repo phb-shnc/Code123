@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
-namespace AdminDashboard.Models
+namespace Code123.Models
 {
-    public class LearningPathModel : IdentityModel
+    public class LearningPathModel : IEntity
     {
         //prevents tampering//
         [BindNever] public int Id { get; set; }

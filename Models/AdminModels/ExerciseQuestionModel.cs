@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
-namespace AdminDashboard.Models;
+namespace Code123.Models;
 
-public class ExerciseQuestionModel : IdentityModel
+public class ExerciseQuestionModel : IEntity
 {
     [BindNever] public int Id { get; set; }
 

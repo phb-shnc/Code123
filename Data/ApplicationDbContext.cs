@@ -1,7 +1,7 @@
-﻿using AdminDashboard.Models;
+﻿using Code123.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AdminDashboard.Data
+namespace Code123.Data
 {
     public class ApplicationDbContext : DbContext
     {
@@ -9,10 +9,40 @@ namespace AdminDashboard.Data
         {
         }
 
-        public DbSet<LearningPathModel> LearningPathsModel { get; set; }
-        public DbSet<UnitModel> UnitsModel { get; set; }
-        public DbSet<LessonModel> LessonsModel { get; set; }
-        public DbSet<ExerciseQuestionModel> ExerciseQuestionsModel { get; set; }
-        public DbSet<UserModel> Users { get; set; }
+        public DbSet<LearningPathModel> LearningPaths { get; set; } = null!;
+        public DbSet<UnitModel> Units { get; set; } = null!;
+        public DbSet<LessonModel> Lessons { get; set; } = null!;
+        public DbSet<ExerciseQuestionModel> ExerciseQuestions { get; set; } = null!;
+        public DbSet<UserModel> Users { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<LearningPathModel>(entity =>
+            {
+                entity.ToTable("LearningPaths");
+                entity.Property(path => path.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            });
+
+            modelBuilder.Entity<UnitModel>(entity =>
+            {
+                entity.ToTable("Units");
+            });
+
+            modelBuilder.Entity<LessonModel>(entity =>
+            {
+                entity.ToTable("Lessons", table =>
+                    table.HasCheckConstraint("CK_Lessons_Content", "DATALENGTH([Content]) <= 100000"));
+            });
+
+            modelBuilder.Entity<ExerciseQuestionModel>(entity =>
+            {
+                entity.ToTable("ExerciseQuestions");
+            });
+
+            modelBuilder.Entity<UserModel>(entity =>
+            {
+                entity.ToTable("Users");
+            });
+        }
     }
 }

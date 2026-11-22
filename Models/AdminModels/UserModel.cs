@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Principal;
 
-namespace AdminDashboard.Models;
+namespace Code123.Models;
 
 public static class UserRoles
 {
@@ -12,7 +11,7 @@ public static class UserRoles
     public const string Student = "Student";
 }
 
-public class UserModel : IdentityModel
+public class UserModel : IEntity
 {
     [BindNever] public int Id { get; set; }
 

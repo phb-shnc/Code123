@@ -6,24 +6,24 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Code123.Migrations;
 
 /// <inheritdoc />
-public partial class _20261122145710_InitialCreate : Migration
+public partial class _20261122151549_InitialCreate : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
-            name: "LearningPathsModel",
+            name: "LearningPaths",
             columns: table => new
             {
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
                 Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                 Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "SYSUTCDATETIME()")
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_LearningPathsModel", x => x.Id);
+                table.PrimaryKey("PK_LearningPaths", x => x.Id);
             });
 
         migrationBuilder.CreateTable(
@@ -43,7 +43,7 @@ public partial class _20261122145710_InitialCreate : Migration
             });
 
         migrationBuilder.CreateTable(
-            name: "UnitsModel",
+            name: "Units",
             columns: table => new
             {
                 Id = table.Column<int>(type: "int", nullable: false)
@@ -55,16 +55,16 @@ public partial class _20261122145710_InitialCreate : Migration
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_UnitsModel", x => x.Id);
+                table.PrimaryKey("PK_Units", x => x.Id);
                 table.ForeignKey(
-                    name: "FK_UnitsModel_LearningPathsModel_LearningPathsModelId",
+                    name: "FK_Units_LearningPaths_LearningPathsModelId",
                     column: x => x.LearningPathsModelId,
-                    principalTable: "LearningPathsModel",
+                    principalTable: "LearningPaths",
                     principalColumn: "Id");
             });
 
         migrationBuilder.CreateTable(
-            name: "LessonsModel",
+            name: "Lessons",
             columns: table => new
             {
                 Id = table.Column<int>(type: "int", nullable: false)
@@ -76,16 +76,17 @@ public partial class _20261122145710_InitialCreate : Migration
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_LessonsModel", x => x.Id);
+                table.PrimaryKey("PK_Lessons", x => x.Id);
+                table.CheckConstraint("CK_Lessons_Content", "DATALENGTH([Content]) <= 100000");
                 table.ForeignKey(
-                    name: "FK_LessonsModel_UnitsModel_UnitsModelId",
+                    name: "FK_Lessons_Units_UnitsModelId",
                     column: x => x.UnitsModelId,
-                    principalTable: "UnitsModel",
+                    principalTable: "Units",
                     principalColumn: "Id");
             });
 
         migrationBuilder.CreateTable(
-            name: "ExerciseQuestionsModel",
+            name: "ExerciseQuestions",
             columns: table => new
             {
                 Id = table.Column<int>(type: "int", nullable: false)
@@ -98,27 +99,27 @@ public partial class _20261122145710_InitialCreate : Migration
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_ExerciseQuestionsModel", x => x.Id);
+                table.PrimaryKey("PK_ExerciseQuestions", x => x.Id);
                 table.ForeignKey(
-                    name: "FK_ExerciseQuestionsModel_LessonsModel_LessonsModelId",
+                    name: "FK_ExerciseQuestions_Lessons_LessonsModelId",
                     column: x => x.LessonsModelId,
-                    principalTable: "LessonsModel",
+                    principalTable: "Lessons",
                     principalColumn: "Id");
             });
 
         migrationBuilder.CreateIndex(
-            name: "IX_ExerciseQuestionsModel_LessonsModelId",
-            table: "ExerciseQuestionsModel",
+            name: "IX_ExerciseQuestions_LessonsModelId",
+            table: "ExerciseQuestions",
             column: "LessonsModelId");
 
         migrationBuilder.CreateIndex(
-            name: "IX_LessonsModel_UnitsModelId",
-            table: "LessonsModel",
+            name: "IX_Lessons_UnitsModelId",
+            table: "Lessons",
             column: "UnitsModelId");
 
         migrationBuilder.CreateIndex(
-            name: "IX_UnitsModel_LearningPathsModelId",
-            table: "UnitsModel",
+            name: "IX_Units_LearningPathsModelId",
+            table: "Units",
             column: "LearningPathsModelId");
     }
 
@@ -126,18 +127,18 @@ public partial class _20261122145710_InitialCreate : Migration
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropTable(
-            name: "ExerciseQuestionsModel");
+            name: "ExerciseQuestions");
 
         migrationBuilder.DropTable(
             name: "Users");
 
         migrationBuilder.DropTable(
-            name: "LessonsModel");
+            name: "Lessons");
 
         migrationBuilder.DropTable(
-            name: "UnitsModel");
+            name: "Units");
 
         migrationBuilder.DropTable(
-            name: "LearningPathsModel");
+            name: "LearningPaths");
     }
 }
