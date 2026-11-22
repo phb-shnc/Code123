@@ -13,7 +13,7 @@ public class LessonsController(ApplicationDbContext context) : CrudController<Le
     protected override async Task PopulateLookupsAsync(LessonModel model) =>
         ViewData["UnitId"] = new SelectList(
             await context.Units.AsNoTracking().OrderBy(u => u.Title).ToListAsync(), nameof(UnitModel.Id), nameof(UnitModel.Title), model?.UnitId);
-    protected override async Task ValidateAsynch(LessonModel model, int? id)
+    protected override async Task ValidateAsync(LessonModel model, int? id)
     {
         if (!await Context.Units.AnyAsync(u => u.Id == model.UnitId))
             ModelState.AddModelError(nameof(LessonModel.UnitId), "Selected Unit does not exist.");
