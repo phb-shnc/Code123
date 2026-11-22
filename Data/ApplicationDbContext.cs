@@ -13,6 +13,6 @@ namespace AdminDashboard.Data
         public DbSet<UnitModel> UnitsModel { get; set; }
         public DbSet<LessonModel> LessonsModel { get; set; }
         public DbSet<ExerciseQuestionModel> ExerciseQuestionsModel { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<UserModel> Users { get; set; }
     }
 }
