@@ -9,7 +9,11 @@ namespace Code123.Controllers;
 public class LessonsController(ApplicationDbContext context) : CrudController<LessonModel>(context)
 {
     protected override string DisplayName => "Lesson";
-    protected override IQueryable<LessonModel> GetQuery() => DbSet.AsNoTracking().Include(l => l.UnitId).OrderBy(l => l.UnitId).ThenBy(l => l.Id);
+    protected override IQueryable<LessonModel> GetQuery() =>
+        DbSet.AsNoTracking()
+            .Include(l => l.UnitsModel)
+            .OrderBy(l => l.UnitId)
+            .ThenBy(l => l.Id);
     protected override async Task PopulateLookupsAsync(LessonModel model) =>
         ViewData["UnitId"] = new SelectList(
             await context.Units.AsNoTracking().OrderBy(u => u.Title).ToListAsync(), nameof(UnitModel.Id), nameof(UnitModel.Title), model?.UnitId);

@@ -16,7 +16,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261122151549_InitialCreate";
+    public override string LastMigrationId => "20261123231922_FixLearningPathRelationships";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -43,9 +43,6 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Property<int>("LessonId")
                     .HasColumnType("int");
 
-                b.Property<int?>("LessonsModelId")
-                    .HasColumnType("int");
-
                 b.Property<string>("Options")
                     .IsRequired()
                     .HasMaxLength(4000)
@@ -58,7 +55,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
 
                 b.HasKey("Id");
 
-                b.HasIndex("LessonsModelId");
+                b.HasIndex("LessonId");
 
                 b.ToTable("ExerciseQuestions");
             });
@@ -81,10 +78,25 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(2000)
                     .HasColumnType("nvarchar(2000)");
 
+                b.Property<int>("DisplayOrder")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasDefaultValue(1);
+
+                b.Property<string>("Level")
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("nvarchar(20)");
+
+                b.Property<string>("Status")
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("nvarchar(20)");
+
                 b.Property<string>("Title")
                     .IsRequired()
-                    .HasMaxLength(100)
-                    .HasColumnType("nvarchar(100)");
+                    .HasMaxLength(120)
+                    .HasColumnType("nvarchar(120)");
 
                 b.HasKey("Id");
 
@@ -112,12 +124,9 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Property<int>("UnitId")
                     .HasColumnType("int");
 
-                b.Property<int?>("UnitsModelId")
-                    .HasColumnType("int");
-
                 b.HasKey("Id");
 
-                b.HasIndex("UnitsModelId");
+                b.HasIndex("UnitId");
 
                 b.ToTable("Lessons", t =>
                     {
@@ -136,9 +145,6 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Property<int>("LearningPathId")
                     .HasColumnType("int");
 
-                b.Property<int?>("LearningPathsModelId")
-                    .HasColumnType("int");
-
                 b.Property<int>("OrderIndex")
                     .HasColumnType("int");
 
@@ -149,7 +155,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
 
                 b.HasKey("Id");
 
-                b.HasIndex("LearningPathsModelId");
+                b.HasIndex("LearningPathId");
 
                 b.ToTable("Units");
             });
@@ -190,7 +196,9 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
             {
                 b.HasOne("Code123.Models.LessonModel", "LessonsModel")
                     .WithMany("ExerciseQuestions")
-                    .HasForeignKey("LessonsModelId");
+                    .HasForeignKey("LessonId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
                 b.Navigation("LessonsModel");
             });
@@ -199,7 +207,9 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
             {
                 b.HasOne("Code123.Models.UnitModel", "UnitsModel")
                     .WithMany("LessonsModel")
-                    .HasForeignKey("UnitsModelId");
+                    .HasForeignKey("UnitId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
                 b.Navigation("UnitsModel");
             });
@@ -208,7 +218,9 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
             {
                 b.HasOne("Code123.Models.LearningPathModel", "LearningPathsModel")
                     .WithMany("UnitsModel")
-                    .HasForeignKey("LearningPathsModelId");
+                    .HasForeignKey("LearningPathId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
                 b.Navigation("LearningPathsModel");
             });

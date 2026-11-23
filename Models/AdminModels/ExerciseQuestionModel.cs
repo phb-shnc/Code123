@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Code123.Models;
 
-public class ExerciseQuestionModel : IEntity
+public class ExerciseQuestionModel : IEntity, IValidatableObject
 {
     [BindNever] public int Id { get; set; }
 
@@ -24,20 +24,31 @@ public class ExerciseQuestionModel : IEntity
 
     [BindNever, ValidateNever] public LessonModel? LessonsModel { get; set; }
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    public IEnumerable<ValidationResult> Validate(
+           ValidationContext validationContext)
     {
         string[]? options = null;
-        try { options = JsonSerializer.Deserialize<string[]>(Options ?? ""); }
-        catch (JsonException) { }
 
-        if (options is null || options.Length < 2 || options.Any(string.IsNullOrWhiteSpace))
-            yield return new ValidationResult("Options must be a JSON array of at least two non-empty strings, e.g. [\"A\",\"B\"].", [nameof(Options)]);
+        try
+        {
+            options = JsonSerializer.Deserialize<string[]>(Options ?? "");
+        }
+        catch (JsonException)
+        {
+        }
+
+        if (options is null || options.Length < 2 ||
+            options.Any(string.IsNullOrWhiteSpace))
+        {
+            yield return new ValidationResult(
+                "Options must be a JSON array of at least two non-empty strings, e.g. [\"A\",\"B\"].",
+                [nameof(Options)]);
+        }
         else if (!options.Contains(CorrectAnswer))
-                yield return new ValidationResult("Correct answer must exactly match one of the options.", [nameof(CorrectAnswer)]);
-
-
+        {
+            yield return new ValidationResult(
+                "Correct answer must exactly match one of the options.",
+                [nameof(CorrectAnswer)]);
+        }
     }
-
-
-
 }

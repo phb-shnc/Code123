@@ -10,7 +10,11 @@ namespace Code123.Controllers;
 public class UnitsController(ApplicationDbContext context) : CrudController<UnitModel>(context)
 {
     protected override string DisplayName => "Unit";
-    protected override IQueryable<UnitModel> GetQuery() => DbSet.AsNoTracking().Include(u => u.LearningPathId).OrderBy(u => u.LearningPathId).ThenBy(u => u.OrderIndex);
+    protected override IQueryable<UnitModel> GetQuery() =>
+        DbSet.AsNoTracking()
+            .Include(u => u.LearningPathsModel)
+            .OrderBy(u => u.LearningPathId)
+            .ThenBy(u => u.OrderIndex);
     protected override async Task PopulateLookupsAsync(UnitModel model) =>
         ViewData["LearningPathId"] = new SelectList(
             await context.LearningPaths.AsNoTracking().OrderBy(p => p.Title).ToListAsync(), nameof(LearningPathModel.Id), nameof(LearningPathModel.Title), model?.LearningPathId);

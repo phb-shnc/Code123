@@ -11,7 +11,9 @@ namespace Code123.Models
         [StringLength(120, ErrorMessage = "Title must be 120 characters or fewer.")]
         public string Title { get; set; } = string.Empty;
 
-        public string? Description { get; set; }
+        [Required(ErrorMessage = "Enter a description.")]
+        [StringLength(2000, ErrorMessage = "Description must be 2,000 characters or fewer.")]
+        public string Description { get; set; } = string.Empty;
 
         public string Level { get; set; } = "Beginner"; 
 

@@ -8,9 +8,6 @@ namespace Code123.Controllers
     {
         private const string V = "~/Views/AdminViews/";
 
-        [HttpGet("dashboard")]
-        public IActionResult Dashboard() => View(V + "Dashboard.cshtml");
-
         [HttpGet("learning-paths")]
         public IActionResult LearningPaths() => View(V + "List.cshtml");
 

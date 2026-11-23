@@ -10,11 +10,12 @@ namespace AdminDashboard.Controllers;
 public class ExerciseQuestionsController(ApplicationDbContext context) : CrudController<ExerciseQuestionModel>(context)
 {
     protected override string DisplayName => "Exercise question";
-
     protected override IQueryable<ExerciseQuestionModel> GetQuery() =>
-        DbSet.AsNoTracking().Include(q => q.LessonId).OrderBy(q => q.LessonId).ThenBy(q => q.Id);
-
-    protected override async Task PopulateLookupsAsync(ExerciseQuestionModel? model) =>
+        DbSet.AsNoTracking()
+            .Include(q => q.LessonsModel)
+            .OrderBy(q => q.LessonId)
+            .ThenBy(q => q.Id);
+    protected override async Task PopulateLookupsAsync(ExerciseQuestionModel model) =>
         ViewData["LessonId"] = new SelectList(
             await Context.Lessons.AsNoTracking().OrderBy(l => l.Title).ToListAsync(),
             nameof(LessonModel.Id), nameof(LessonModel.Title), model?.LessonId);
