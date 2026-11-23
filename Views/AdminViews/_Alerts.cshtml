@@ -1,9 +1,3 @@
-@*
-    Status banners. Rendered once by _AdminLayout, so every page gets them.
-      Success:    TempData["Success"] = "Learning path saved.";  (then redirect)
-      Error:      TempData["Error"]   = "Could not delete this record.";
-      Validation: shown automatically when ModelState is invalid.
-*@
 @{
     var success = TempData["Success"] as string;
     var error = TempData["Error"] as string;

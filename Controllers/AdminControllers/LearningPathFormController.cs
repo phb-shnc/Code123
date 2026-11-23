@@ -3,32 +3,32 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Code123.Controllers
 {
-    // Preview controller so you can click through every template.
-    // Views are looked up in Views/AdminViews/.
-    [Route("admin")]
+    [Route("admin-preview")]
     public class LearningPathFormController : Controller
     {
+        private const string V = "~/Views/AdminViews/";
+
         [HttpGet("dashboard")]
-        public IActionResult Dashboard() => View();
+        public IActionResult Dashboard() => View(V + "Dashboard.cshtml");
 
         [HttpGet("learning-paths")]
-        public IActionResult LearningPaths() => View("List");
+        public IActionResult LearningPaths() => View(V + "List.cshtml");
 
         [HttpGet("learning-paths/create")]
-        public IActionResult Create() => View("Form", new LearningPathFormModel());
+        public IActionResult Create() => View(V + "Form.cshtml", new LearningPathFormModel());
 
         [HttpGet("learning-paths/edit/{id:int}")]
         public IActionResult Edit(int id) =>
-            View("Form", new LearningPathFormModel { Id = id, Title = "Web development basics", Level = "Beginner", Status = "Published" });
+            View(V + "Form.cshtml", new LearningPathFormModel { Id = id, Title = "Web development basics", Level = "Beginner", Status = "Published" });
 
         [HttpPost("learning-paths/save")]
         [ValidateAntiForgeryToken]
         public IActionResult Save(LearningPathFormModel model)
         {
             if (!ModelState.IsValid)
-                return View("Form", model);          // shows the error banner + field messages
+                return View(V + "Form.cshtml", model);
 
-            TempData["Success"] = "Learning path saved.";   // shows the success banner
+            TempData["Success"] = "Learning path saved.";
             return RedirectToAction(nameof(LearningPaths));
         }
 

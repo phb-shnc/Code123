@@ -1,16 +1,16 @@
 @{
     ViewData["Title"] = "Dashboard";
     ViewData["Active"] = "dashboard";
-    Layout = "_AdminLayout";
+    Layout = "~/Views/AdminViews/_AdminLayout.cshtml";
 
-    // Sample numbers. Pass real counts from your controller (ViewModel or ViewBag) and swap them in here.
+    // Sample numbers. Replace with real counts from your controller.
     var modules = new (string Label, int Count, string Href, string Hint)[]
     {
-        ("Learning paths", 6, "/admin/learning-paths", "Courses learners can follow"),
-        ("Units", 24, "/admin/units", "Sections inside a path"),
-        ("Lessons", 118, "/admin/lessons", "Individual lesson pages"),
-        ("Exercises & questions", 342, "/admin/exercises", "Practice and quiz items"),
-        ("Users", 1280, "/admin/users", "Learners and admins"),
+        ("Learning paths", 6, "/admin-preview/learning-paths", "Courses learners can follow"),
+        ("Units", 24, "#", "Sections inside a path"),
+        ("Lessons", 118, "#", "Individual lesson pages"),
+        ("Exercises & questions", 342, "#", "Practice and quiz items"),
+        ("Users", 1280, "#", "Learners and admins"),
     };
 }
 
@@ -18,8 +18,8 @@
     <h1 class="text-2xl font-bold">Welcome back</h1>
     <p class="mt-1 max-w-prose text-stone-600">Pick a module to review content, or start something new.</p>
     <div class="mt-5 flex flex-wrap gap-3">
-        <a href="/admin/learning-paths/create" class="rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2">New learning path</a>
-        <a href="/admin/lessons" class="rounded-md border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">Browse lessons</a>
+        <a href="/admin-preview/learning-paths/create" class="rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2">New learning path</a>
+        <a href="#" class="rounded-md border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">Browse lessons</a>
     </div>
 </section>
 
