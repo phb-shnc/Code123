@@ -1,0 +1,66 @@
+@*
+    Create / Edit template. One view for both: Model.Id == 0 means create.
+    Swap LearningPathFormModel for your own model; asp-for binds each field to a property.
+*@
+@model Code123.Models.LearningPathFormModel
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "New learning path" : "Edit learning path";
+    ViewData["Active"] = "paths";
+    Layout = "_AdminLayout";
+
+    var input = "mt-1 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/30";
+    var error = "mt-1 block text-sm text-red-700";
+}
+
+<h1 class="text-2xl font-bold">@ViewData["Title"]</h1>
+<p class="text-sm text-stone-600">@(isNew ? "Fill in the details to add a learning path." : "Update the details and save your changes.")</p>
+
+<form asp-action="Save" method="post" class="mt-6 max-w-2xl space-y-5 rounded-xl border border-stone-200 bg-white p-6">
+    <input type="hidden" asp-for="Id" />
+
+    <div>
+        <label asp-for="Title" class="block text-sm font-medium">Title</label>
+        <input asp-for="Title" class="@input" placeholder="e.g. Web development basics" />
+        <span asp-validation-for="Title" class="@error"></span>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+            <label asp-for="Level" class="block text-sm font-medium">Level</label>
+            <select asp-for="Level" class="@input">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+            </select>
+            <span asp-validation-for="Level" class="@error"></span>
+        </div>
+        <div>
+            <label asp-for="Status" class="block text-sm font-medium">Status</label>
+            <select asp-for="Status" class="@input">
+                <option value="Draft">Draft</option>
+                <option value="Published">Published</option>
+            </select>
+            <span asp-validation-for="Status" class="@error"></span>
+        </div>
+    </div>
+
+    <div>
+        <label asp-for="DisplayOrder" class="block text-sm font-medium">Display order</label>
+        <input asp-for="DisplayOrder" type="number" min="1" class="@input sm:w-40" />
+        <span asp-validation-for="DisplayOrder" class="@error"></span>
+    </div>
+
+    <div>
+        <label asp-for="Description" class="block text-sm font-medium">Description</label>
+        <textarea asp-for="Description" rows="5" class="@input" placeholder="What will learners get from this path?"></textarea>
+        <span asp-validation-for="Description" class="@error"></span>
+    </div>
+
+    <div class="flex justify-end gap-3 border-t border-stone-100 pt-5">
+        <a href="/admin/learning-paths" class="rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">Cancel</a>
+        <button type="submit" class="rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2">
+            @(isNew ? "Create learning path" : "Save changes")
+        </button>
+    </div>
+</form>

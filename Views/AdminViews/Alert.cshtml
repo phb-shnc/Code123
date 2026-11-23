@@ -1,0 +1,52 @@
+@*
+    Status banners. Rendered once by _AdminLayout, so every page gets them.
+      Success:    TempData["Success"] = "Learning path saved.";  (then redirect)
+      Error:      TempData["Error"]   = "Could not delete this record.";
+      Validation: shown automatically when ModelState is invalid.
+*@
+@{
+    var success = TempData["Success"] as string;
+    var error = TempData["Error"] as string;
+    var validationErrors = ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).Where(m => !string.IsNullOrWhiteSpace(m)).ToList();
+}
+
+@if (!string.IsNullOrEmpty(success))
+{
+    <div data-alert role="status" class="mb-6 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-900">
+        <svg class="mt-0.5 h-5 w-5 shrink-0 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <div class="flex-1 text-sm">
+            <p class="font-semibold">Operation successful</p>
+            <p>@success</p>
+        </div>
+        <button type="button" aria-label="Dismiss" onclick="this.closest('[data-alert]').remove()" class="rounded px-2 text-green-700 hover:bg-green-100">&times;</button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div data-alert role="alert" class="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-900">
+        <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+        <div class="flex-1 text-sm">
+            <p class="font-semibold">Something went wrong</p>
+            <p>@error</p>
+        </div>
+        <button type="button" aria-label="Dismiss" onclick="this.closest('[data-alert]').remove()" class="rounded px-2 text-red-700 hover:bg-red-100">&times;</button>
+    </div>
+}
+
+@if (validationErrors.Any())
+{
+    <div data-alert role="alert" class="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-900">
+        <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+        <div class="flex-1 text-sm">
+            <p class="font-semibold">Some information is invalid. Fix the errors below and try again.</p>
+            <ul class="mt-1 list-inside list-disc">
+                @foreach (var message in validationErrors)
+                {
+                    <li>@message</li>
+                }
+            </ul>
+        </div>
+        <button type="button" aria-label="Dismiss" onclick="this.closest('[data-alert]').remove()" class="rounded px-2 text-red-700 hover:bg-red-100">&times;</button>
+    </div>
+}

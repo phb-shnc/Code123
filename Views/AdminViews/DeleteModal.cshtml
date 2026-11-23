@@ -1,0 +1,54 @@
+@*
+    One shared delete confirmation. Any button with these attributes opens it:
+      <button type="button" data-delete-url="/admin/learning-paths/delete/5" data-delete-name="Web basics">Delete</button>
+    The dialog POSTs (with an antiforgery token) to data-delete-url.
+*@
+<dialog id="deleteDialog" aria-labelledby="deleteTitle"
+        class="m-auto w-full max-w-md rounded-xl p-0 shadow-xl backdrop:bg-stone-900/40">
+    <div class="p-6">
+        <div class="flex items-start gap-4">
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+            </div>
+            <div>
+                <h2 id="deleteTitle" class="text-lg font-semibold">Confirm deletion?</h2>
+                <p class="mt-1 text-sm text-stone-600">
+                    Are you sure you want to delete <strong id="deleteName" class="font-semibold text-stone-800">this record</strong>?
+                    This cannot be undone.
+                </p>
+            </div>
+        </div>
+
+        <form id="deleteForm" method="post" asp-antiforgery="true" class="mt-6 flex justify-end gap-3">
+            <button type="button" data-close-dialog
+                    class="rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600">
+                Cancel
+            </button>
+            <button type="submit"
+                    class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2">
+                Yes, delete
+            </button>
+        </form>
+    </div>
+</dialog>
+
+<script>
+    (function () {
+        var dialog = document.getElementById('deleteDialog');
+        var form = document.getElementById('deleteForm');
+        var name = document.getElementById('deleteName');
+
+        document.addEventListener('click', function (e) {
+            var trigger = e.target.closest('[data-delete-url]');
+            if (trigger) {
+                form.action = trigger.dataset.deleteUrl;
+                name.textContent = trigger.dataset.deleteName || 'this record';
+                dialog.showModal();
+                return;
+            }
+            if (e.target.closest('[data-close-dialog]') || e.target === dialog) {
+                dialog.close();
+            }
+        });
+    })();
+</script>
