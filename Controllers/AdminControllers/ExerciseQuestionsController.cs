@@ -1,11 +1,10 @@
 ﻿using Code123.Data;
 using Code123.Models;
-using Code123.Controllers;
 using Microsoft.AspNetCore.Mvc; 
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace AdminDashboard.Controllers;
+namespace Code123.Controllers;
 
 public class ExerciseQuestionsController(ApplicationDbContext context) : CrudController<ExerciseQuestionModel>(context)
 {

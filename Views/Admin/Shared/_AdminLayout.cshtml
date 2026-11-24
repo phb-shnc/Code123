@@ -65,12 +65,12 @@
 
     <main class="md:pl-64">
         <div class="mx-auto max-w-6xl px-4 py-8 sm:px-8">
-            <partial name="~/Views/AdminViews/_Alerts.cshtml" />
+            <partial name="~/Views/Admin/Shared/_Alerts.cshtml" />
             @RenderBody()
         </div>
     </main>
 
-    <partial name="~/Views/AdminViews/_DeleteModal.cshtml" />
+    <partial name="~/Views/Admin/Shared/_DeleteModal.cshtml" />
 
     <script>
         document.getElementById('navToggle').addEventListener('click', function () {

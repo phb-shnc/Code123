@@ -1,0 +1,240 @@
+
+@model IEnumerable<Code123.Controllers.LearningPathListItemViewModel>
+
+@{
+    ViewData["Title"] = "Learning paths";
+    ViewData["Active"] = "paths";
+    Layout = "~/Views/Admin/Shared/_AdminLayout.cshtml";
+
+    var input = "mt-1 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/30";
+}
+
+<div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+        <h1 class="text-2xl font-bold">Learning paths</h1>
+        <p class="text-sm text-stone-600">@Model.Count() records</p>
+    </div>
+
+    <button type="button"
+            onclick="openCreateModal()"
+            class="rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+        Create new
+    </button>
+</div>
+
+<div class="mt-6 overflow-x-auto rounded-xl border border-stone-200 bg-white">
+    <table class="min-w-full divide-y divide-stone-200 text-sm">
+        <thead class="bg-stone-50 text-left text-stone-600">
+            <tr>
+                <th class="px-4 py-3 font-semibold">Title</th>
+                <th class="px-4 py-3 font-semibold">Level</th>
+                <th class="px-4 py-3 font-semibold">Status</th>
+                <th class="px-4 py-3 font-semibold">Units</th>
+                <th class="px-4 py-3 font-semibold">Lessons</th>
+                <th class="px-4 py-3 font-semibold">Students</th>
+                <th class="px-4 py-3 text-right font-semibold">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody class="divide-y divide-stone-100">
+            @foreach (var r in Model)
+            {
+                <tr class="hover:bg-stone-50">
+                    <td class="px-4 py-3 font-medium">@r.Title</td>
+                    <td class="px-4 py-3">@r.Level</td>
+                    <td class="px-4 py-3">
+                        @if (r.Status == "Published")
+                        {
+                            <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                                Published
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="rounded-full bg-stone-100 px-2 py-1 text-xs font-medium text-stone-700">
+                                Draft
+                            </span>
+                        }
+                    </td>
+                    <td class="px-4 py-3">@r.UnitCount</td>
+                    <td class="px-4 py-3">@r.LessonCount</td>
+                    <td class="px-4 py-3">
+                        @(r.StudentCount?.ToString() ?? "Not tracked")
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex justify-end gap-1">
+                            <button type="button"
+                                    class="rounded px-2 py-1 text-brand-700 hover:bg-brand-50"
+                                    data-edit
+                                    data-id="@r.Id"
+                                    data-title="@r.Title"
+                                    data-description="@r.Description"
+                                    data-level="@r.Level"
+                                    data-status="@r.Status"
+                                    data-display-order="@r.DisplayOrder">
+                                Edit
+                            </button>
+
+                            <button type="button"
+                                    data-delete-url="/admin-preview/learning-paths/delete/@r.Id"
+                                    data-delete-name="@r.Title"
+                                    class="rounded px-2 py-1 text-red-700 hover:bg-red-50">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7" class="px-4 py-10 text-center text-stone-500">
+                        Nothing here yet. Create your first learning path.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Create and Edit Modal -->
+<dialog id="learningPathModal"
+        class="w-full max-w-2xl rounded-xl border border-stone-200 bg-white p-0 shadow-xl backdrop:bg-stone-900/50">
+
+    <div class="flex items-center justify-between border-b border-stone-200 px-6 py-4">
+        <div>
+            <h2 id="modalTitle" class="text-xl font-bold">Create Learning Path</h2>
+            <p id="modalDescription" class="text-sm text-stone-600">
+                Fill in the details to add a learning path.
+            </p>
+        </div>
+
+        <button type="button"
+                onclick="closeLearningPathModal()"
+                class="rounded-md p-2 text-stone-500 hover:bg-stone-100"
+                aria-label="Close modal">
+            ✕
+        </button>
+    </div>
+
+    <form id="learningPathForm"
+          action="/admin-preview/learning-paths/save"
+          method="post"
+          class="space-y-5 p-6">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" id="Id" name="Id" value="0" />
+        <input type="hidden" id="DisplayOrder" name="DisplayOrder" value="1" />
+
+        <div>
+            <label for="Title" class="block text-sm font-medium">Title</label>
+            <input id="Title"
+                   name="Title"
+                   type="text"
+                   maxlength="120"
+                   required
+                   class="@input"
+                   placeholder="e.g. Web development basics" />
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label for="Level" class="block text-sm font-medium">Level</label>
+                <select id="Level" name="Level" class="@input">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="Status" class="block text-sm font-medium">Status</label>
+                <select id="Status" name="Status" class="@input">
+                    <option value="Draft">Draft</option>
+                    <option value="Published">Published</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <label for="Description" class="block text-sm font-medium">Description</label>
+            <textarea id="Description"
+                      name="Description"
+                      rows="5"
+                      maxlength="2000"
+                      required
+                      class="@input"
+                      placeholder="What will learners get from this path?"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-3 border-t border-stone-100 pt-5">
+            <button type="button"
+                    onclick="closeLearningPathModal()"
+                    class="rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">
+                Cancel
+            </button>
+
+            <button id="submitButton"
+                    type="submit"
+                    class="rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+                Create learning path
+            </button>
+        </div>
+    </form>
+</dialog>
+
+<style>
+    #learningPathModal[open] {
+        margin: auto;
+    }
+</style>
+
+<script>
+    const learningPathModal = document.getElementById('learningPathModal');
+    const learningPathForm = document.getElementById('learningPathForm');
+
+    function openCreateModal() {
+        learningPathForm.reset();
+
+        document.getElementById('Id').value = '0';
+        document.getElementById('DisplayOrder').value = '1';
+
+        document.getElementById('modalTitle').textContent = 'Create Learning Path';
+        document.getElementById('modalDescription').textContent =
+            'Fill in the details to add a learning path.';
+        document.getElementById('submitButton').textContent = 'Create learning path';
+
+        learningPathModal.showModal();
+    }
+
+    function closeLearningPathModal() {
+        learningPathModal.close();
+    }
+
+    document.querySelectorAll('[data-edit]').forEach(button => {
+        button.addEventListener('click', function () {
+            document.getElementById('Id').value = this.dataset.id;
+            document.getElementById('Title').value = this.dataset.title;
+            document.getElementById('Description').value = this.dataset.description;
+            document.getElementById('Level').value = this.dataset.level;
+            document.getElementById('Status').value = this.dataset.status;
+            document.getElementById('DisplayOrder').value =
+                this.dataset.displayOrder || '1';
+
+            document.getElementById('modalTitle').textContent = 'Edit Learning Path';
+            document.getElementById('modalDescription').textContent =
+                'Update the details of this learning path.';
+            document.getElementById('submitButton').textContent = 'Save changes';
+
+            learningPathModal.showModal();
+        });
+    });
+
+    learningPathModal.addEventListener('click', function (event) {
+        if (event.target === learningPathModal) {
+            learningPathModal.close();
+        }
+    });
+</script>

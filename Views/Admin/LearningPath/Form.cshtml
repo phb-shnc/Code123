@@ -3,7 +3,7 @@
     var isNew = Model.Id == 0;
     ViewData["Title"] = isNew ? "New learning path" : "Edit learning path";
     ViewData["Active"] = "paths";
-    Layout = "~/Views/AdminViews/_AdminLayout.cshtml";
+    Layout = "~/Views/Admin/Shared/_AdminLayout.cshtml";
 
     var input = "mt-1 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/30";
     var error = "mt-1 block text-sm text-red-700";

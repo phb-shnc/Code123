@@ -1,10 +1,9 @@
-﻿using Code123.Controllers;
-using Code123.Data;
+﻿using Code123.Data;
 using Code123.Models;
 using Microsoft.EntityFrameworkCore;
 using BCryptNet = BCrypt.Net.BCrypt;
 
-namespace AdminDashboard.Controllers;
+namespace Code123.Controllers;
 
 public class UsersController(ApplicationDbContext context) : CrudController<UserModel>(context)
 {

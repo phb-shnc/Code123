@@ -11,7 +11,7 @@ public class AdminController(ApplicationDbContext context) : Controller
 
     [HttpGet("/admin-preview/dashboard")]
     public async Task<IActionResult> Dashboard() =>
-    View("~/Views/AdminViews/Dashboard.cshtml",
+    View("~/Views/Admin/Dashboard/Index.cshtml",
         new DashboardViewModel(
             await context.LearningPaths.CountAsync(),
             await context.Units.CountAsync(),
