@@ -1,0 +1,36 @@
+﻿
+@model Code123.Models.UnitModel
+
+<div>
+    <label asp-for="LearningPathId" class="block text-sm font-medium">
+        Learning Path
+    </label>
+    <select asp-for="LearningPathId"
+            asp-items="ViewBag.LearningPathId"
+            class="mt-1 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/30">
+        <option value="">Select a learning path</option>
+    </select>
+    <span asp-validation-for="LearningPathId" class="text-sm text-red-600"></span>
+</div>
+
+<div>
+    <label asp-for="Title" class="block text-sm font-medium">
+        Unit Title
+    </label>
+    <input asp-for="Title"
+           maxlength="100"
+           placeholder="e.g. Introduction to Java"
+           class="mt-1 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/30" />
+    <span asp-validation-for="Title" class="text-sm text-red-600"></span>
+</div>
+
+<div>
+    <label asp-for="OrderIndex" class="block text-sm font-medium">
+        Order
+    </label>
+    <input asp-for="OrderIndex"
+           type="number"
+           min="1"
+           class="mt-1 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/30" />
+    <span asp-validation-for="OrderIndex" class="text-sm text-red-600"></span>
+</div>

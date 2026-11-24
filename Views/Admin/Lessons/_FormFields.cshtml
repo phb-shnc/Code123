@@ -1,0 +1,33 @@
+﻿
+@model Code123.Models.LessonModel
+
+<div class="space-y-4">
+    <div>
+        <label asp-for="UnitId" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <select asp-for="UnitId"
+                asp-items="ViewBag.UnitId"
+                class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm">
+            <option value="">Select a unit</option>
+        </select>
+        <span asp-validation-for="UnitId" class="text-sm text-red-600"></span>
+    </div>
+
+    <div>
+        <label asp-for="Title" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <input asp-for="Title"
+               class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+               placeholder="Enter lesson title" />
+        <span asp-validation-for="Title" class="text-sm text-red-600"></span>
+    </div>
+
+    <div>
+        <label asp-for="Content" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <textarea asp-for="Content"
+                  rows="10"
+                  maxlength="50000"
+                  class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+                  placeholder="Write the lesson content here..."></textarea>
+        <span asp-validation-for="Content" class="text-sm text-red-600"></span>
+        <p class="mt-1 text-xs text-stone-500">Maximum of 50,000 characters.</p>
+    </div>
+</div>

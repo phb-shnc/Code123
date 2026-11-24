@@ -1,0 +1,48 @@
+﻿
+@model Code123.Models.UserModel
+
+<div class="space-y-4">
+    <div>
+        <label asp-for="Name" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <input asp-for="Name"
+               maxlength="100"
+               class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+               placeholder="Enter full name" />
+        <span asp-validation-for="Name" class="text-sm text-red-600"></span>
+    </div>
+
+    <div>
+        <label asp-for="Email" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <input asp-for="Email"
+               type="email"
+               maxlength="254"
+               class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+               placeholder="Enter email address" />
+        <span asp-validation-for="Email" class="text-sm text-red-600"></span>
+    </div>
+
+    <div>
+        <label asp-for="Role" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <select asp-for="Role"
+                class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm">
+            <option value="Student">Student</option>
+            <option value="Admin">Admin</option>
+        </select>
+        <span asp-validation-for="Role" class="text-sm text-red-600"></span>
+    </div>
+
+    <div>
+        <label asp-for="Password" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <input asp-for="Password"
+               type="password"
+               maxlength="72"
+               minlength="8"
+               autocomplete="new-password"
+               class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+               placeholder="Enter password" />
+        <span asp-validation-for="Password" class="text-sm text-red-600"></span>
+        <p id="passwordHint" class="mt-1 text-xs text-stone-500">
+            Password must contain at least 8 characters.
+        </p>
+    </div>
+</div>

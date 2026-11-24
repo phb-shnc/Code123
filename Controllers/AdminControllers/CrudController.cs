@@ -18,6 +18,14 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
     protected DbSet<T> DbSet => Context.Set<T>();
     protected abstract string DisplayName { get; }
 
+    // Get the view path based on the derived controller's name.
+    private string GetAdminViewPath(string viewName)
+    {
+        string controllerName = GetType().Name.Replace("Controller", "");
+
+        return $"~/Views/Admin/{controllerName}/{viewName}.cshtml";
+    }
+
     // Extension points
     protected virtual IQueryable<T> GetQuery() => DbSet.AsNoTracking().OrderBy(e => e.Id);
     protected virtual Task PopulateLookupsAsync(T model) => Task.CompletedTask;
@@ -28,7 +36,12 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
 
     // Index
     [HttpGet]
-    public virtual async Task<IActionResult> Index() => View(await GetQuery().ToListAsync());
+    public virtual async Task<IActionResult> Index()
+    {
+        var model = await GetQuery().ToListAsync();
+
+        return View(GetAdminViewPath("Index"), model);
+    }
 
     // Create (HttpGet)
     [HttpGet]
@@ -36,7 +49,7 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
     {
         var model = new T();
         await PopulateLookupsAsync(model);
-        return View(model);
+        return View(GetAdminViewPath("Create"), model);
     }
 
     // Create (HttpPost)
@@ -54,7 +67,7 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
                 return RedirectToAction(nameof(Index));
             }
         }
-        return await InvalidAsync(model);
+        return await InvalidAsync(model, "Create");
     }
 
     // Edit (HttpGet)
@@ -64,7 +77,7 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
         var entity = await DbSet.FindAsync(id);
         if (entity == null) return NotFound();
         await PopulateLookupsAsync(entity);
-        return View(entity);
+        return View(GetAdminViewPath("Edit"), entity);
     }
 
     // Edit (HttpPost)
@@ -85,7 +98,7 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
                 return RedirectToAction(nameof(Index));
             }
         }
-        return await InvalidAsync(model);
+        return await InvalidAsync(model, "Edit");
     }
 
     // Delete
@@ -110,11 +123,12 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
     }
 
     // Helpers
-    private async Task<IActionResult> InvalidAsync(T model)
+    private async Task<IActionResult> InvalidAsync(T model, string viewName)
     {
         TempData["ErrorMessage"] = "Please correct the errors below.";
         await PopulateLookupsAsync(model);
-        return View(model);
+
+        return View(GetAdminViewPath(viewName), model);
     }
 
     private async Task<bool> TrySaveAsync()

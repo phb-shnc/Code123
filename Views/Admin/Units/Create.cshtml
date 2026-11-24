@@ -1,0 +1,35 @@
+﻿
+@model Code123.Models.UnitModel
+
+@{
+    ViewData["Title"] = "Create Unit";
+    ViewData["Active"] = "units";
+    Layout = "~/Views/Admin/Shared/_AdminLayout.cshtml";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold">Create Unit</h1>
+    <p class="text-sm text-stone-600">Add a new unit to a learning path.</p>
+</div>
+
+<div class="max-w-2xl rounded-xl border border-stone-200 bg-white p-6">
+    <form asp-action="Create" method="post" class="space-y-5">
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-sm text-red-600"></div>
+
+        <partial name="~/Views/Admin/Units/_FormFields.cshtml" model="Model" />
+
+        <div class="flex justify-end gap-3 border-t border-stone-100 pt-5">
+            <a asp-action="Index"
+               class="rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
+                Create Unit
+            </button>
+        </div>
+    </form>
+</div>

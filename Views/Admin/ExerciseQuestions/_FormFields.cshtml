@@ -1,0 +1,53 @@
+﻿
+@model Code123.Models.ExerciseQuestionModel
+
+<div class="space-y-4">
+    <div>
+        <label asp-for="LessonId" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <select asp-for="LessonId"
+                asp-items="ViewBag.LessonId"
+                class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm">
+            <option value="">Select a lesson</option>
+        </select>
+        <span asp-validation-for="LessonId" class="text-sm text-red-600"></span>
+    </div>
+
+    <div>
+        <label asp-for="QuestionText" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <textarea asp-for="QuestionText"
+                  rows="4"
+                  maxlength="1000"
+                  class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+                  placeholder="Enter the exercise question..."></textarea>
+        <span asp-validation-for="QuestionText" class="text-sm text-red-600"></span>
+    </div>
+
+    <div>
+        <label class="mb-1 block text-sm font-medium text-stone-700">
+            Options
+        </label>
+
+        <textarea id="optionsInput"
+                  rows="5"
+                  maxlength="4000"
+                  class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+                  placeholder="Enter one option per line&#10;Example:&#10;A&#10;B&#10;C&#10;D"></textarea>
+
+        <input asp-for="Options" type="hidden" id="optionsJson" />
+
+        <span asp-validation-for="Options" class="text-sm text-red-600"></span>
+        <p class="mt-1 text-xs text-stone-500">
+            Enter one option per line. At least two non-empty options are required.
+        </p>
+    </div>
+
+    <div>
+        <label asp-for="CorrectAnswer" class="mb-1 block text-sm font-medium text-stone-700"></label>
+        <select asp-for="CorrectAnswer"
+                id="correctAnswerInput"
+                class="w-full rounded-md border border-stone-300 px-3 py-2 text-sm">
+            <option value="">Select the correct answer</option>
+        </select>
+        <span asp-validation-for="CorrectAnswer" class="text-sm text-red-600"></span>
+    </div>
+</div>
