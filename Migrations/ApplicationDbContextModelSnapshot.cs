@@ -16,7 +16,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261124062120_AddMissingColumnsToLearningPath";
+    public override string LastMigrationId => "20261124152938_InitialRBAC";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -134,6 +134,39 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                     });
             });
 
+        modelBuilder.Entity("Code123.Models.Role", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.Property<string>("RoleName")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                b.HasKey("Id");
+
+                b.HasIndex("RoleName")
+                    .IsUnique();
+
+                b.ToTable("Roles");
+
+                b.HasData(
+                    new
+                    {
+                        Id = 1,
+                        RoleName = "Student"
+                    },
+                    new
+                    {
+                        Id = 2,
+                        RoleName = "Admin"
+                    });
+            });
+
         modelBuilder.Entity("Code123.Models.UnitModel", b =>
             {
                 var id = b.Property<int>("Id")
@@ -160,7 +193,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("Units");
             });
 
-        modelBuilder.Entity("Code123.Models.UserModel", b =>
+        modelBuilder.Entity("Code123.Models.User", b =>
             {
                 var id = b.Property<int>("Id")
                     .ValueGeneratedOnAdd()
@@ -168,10 +201,13 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
 
                 SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
 
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
                 b.Property<string>("Email")
                     .IsRequired()
-                    .HasMaxLength(254)
-                    .HasColumnType("nvarchar(254)");
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
 
                 b.Property<string>("Name")
                     .IsRequired()
@@ -180,16 +216,37 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
 
                 b.Property<string>("PasswordHash")
                     .IsRequired()
-                    .HasMaxLength(100)
-                    .HasColumnType("nvarchar(100)");
-
-                b.Property<string>("Role")
-                    .IsRequired()
                     .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("Username")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
 
                 b.HasKey("Id");
 
+                b.HasIndex("Email")
+                    .IsUnique();
+
+                b.HasIndex("Username")
+                    .IsUnique();
+
                 b.ToTable("Users");
+            });
+
+        modelBuilder.Entity("Code123.Models.UserRole", b =>
+            {
+                b.Property<int>("UserId")
+                    .HasColumnType("int");
+
+                b.Property<int>("RoleId")
+                    .HasColumnType("int");
+
+                b.HasKey("UserId", "RoleId");
+
+                b.HasIndex("RoleId");
+
+                b.ToTable("UserRoles");
             });
 
         modelBuilder.Entity("Code123.Models.ExerciseQuestionModel", b =>
@@ -225,6 +282,25 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("LearningPathsModel");
             });
 
+        modelBuilder.Entity("Code123.Models.UserRole", b =>
+            {
+                b.HasOne("Code123.Models.Role", "Role")
+                    .WithMany("UserRoles")
+                    .HasForeignKey("RoleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.HasOne("Code123.Models.User", "User")
+                    .WithMany("UserRoles")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Role");
+
+                b.Navigation("User");
+            });
+
         modelBuilder.Entity("Code123.Models.LearningPathModel", b =>
             {
                 b.Navigation("UnitsModel");
@@ -235,9 +311,19 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("ExerciseQuestions");
             });
 
+        modelBuilder.Entity("Code123.Models.Role", b =>
+            {
+                b.Navigation("UserRoles");
+            });
+
         modelBuilder.Entity("Code123.Models.UnitModel", b =>
             {
                 b.Navigation("LessonsModel");
+            });
+
+        modelBuilder.Entity("Code123.Models.User", b =>
+            {
+                b.Navigation("UserRoles");
             });
 #pragma warning restore 612, 618
     }

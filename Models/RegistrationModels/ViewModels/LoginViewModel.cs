@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Code123.Models
+namespace Code123.RegistrationModels.ViewModels
 {   
     public class LoginViewModel
     {

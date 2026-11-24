@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Code123.Data;
 using Code123.Models;
+using Code123.RegistrationModels.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;

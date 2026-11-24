@@ -1,22 +1,22 @@
-﻿
-using Code123.Data;
+﻿using Code123.Data;
 using Code123.Models;
 using Microsoft.EntityFrameworkCore;
 using BCryptNet = BCrypt.Net.BCrypt;
 
-namespace Code123.Controllers;
+namespace Code123.Controllers.AdminControllers;
 
 public class UsersController(ApplicationDbContext context)
-    : CrudController<UserModel>(context)
+    : CrudController<User>(context)
 {
     protected override string DisplayName => "User";
 
-    protected override IQueryable<UserModel> GetQuery() =>
+    protected override IQueryable<User> GetQuery() =>
         DbSet.AsNoTracking()
-            .OrderBy(u => u.Role)
-            .ThenBy(u => u.Name);
+            .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+            .OrderBy(u => u.Name);
 
-    protected override async Task ValidateAsync(UserModel model, int? id)
+    protected override async Task ValidateAsync(User model, int? id)
     {
         model.Email = (model.Email ?? string.Empty).Trim().ToLowerInvariant();
 
@@ -24,26 +24,31 @@ public class UsersController(ApplicationDbContext context)
             u.Email == model.Email && u.Id != id))
         {
             ModelState.AddModelError(
-                nameof(UserModel.Email),
+                nameof(model.Email), // Fixed from User.Email
                 "This email is already registered.");
         }
 
         if (id is null && string.IsNullOrWhiteSpace(model.Password))
         {
             ModelState.AddModelError(
-                nameof(UserModel.Password),
+                nameof(model.Password), // Fixed from User.Password
                 "Password is required for new users.");
         }
     }
 
-    protected override void OnCreating(UserModel model) =>
-        model.PasswordHash = BCryptNet.HashPassword(model.Password!);
+    protected override void OnCreating(User model)
+    {
+        if (!string.IsNullOrWhiteSpace(model.Password))
+        {
+            model.PasswordHash = BCryptNet.HashPassword(model.Password);
+        }
+    }
 
-    protected override void Apply(UserModel existing, UserModel model)
+    protected override void Apply(User existing, User model)
     {
         existing.Name = model.Name;
+        existing.Username = model.Username;
         existing.Email = model.Email;
-        existing.Role = model.Role;
 
         if (!string.IsNullOrWhiteSpace(model.Password))
         {
@@ -51,9 +56,23 @@ public class UsersController(ApplicationDbContext context)
         }
     }
 
-    protected override async Task<string?> CheckDeleteAsync(UserModel entity) =>
-        entity.Role == UserRoles.Admin &&
-        await Context.Users.CountAsync(u => u.Role == UserRoles.Admin) <= 1
-            ? "You cannot delete the last Admin."
-            : null;
+    protected override async Task<string?> CheckDeleteAsync(User entity)
+    {
+        // Check if user is an Admin via the new UserRoles relationship
+        bool isAdmin = entity.UserRoles.Any(ur => ur.Role?.RoleName == "Admin");
+
+        if (isAdmin)
+        {
+            int adminCount = await Context.Users
+                .Where(u => u.UserRoles.Any(ur => ur.Role != null && ur.Role.RoleName == "Admin"))
+                .CountAsync();
+
+            if (adminCount <= 1)
+            {
+                return "You cannot delete the last Admin.";
+            }
+        }
+
+        return null;
+    }
 }
