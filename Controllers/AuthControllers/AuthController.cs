@@ -121,7 +121,8 @@ namespace Code123.Controllers
             // Roles are already attached in memory, so no re-query is needed
             await SignInUserAsync(user);
 
-            return RedirectToAction("Dashboard", "Student");
+            var roles = user.UserRoles.Select(ur => ur.Role.RoleName).ToList();
+            return RedirectByRole(roles.Contains("Admin"), roles.Contains("Student"));
         }
 
         // ---------- LOGOUT ----------
@@ -169,9 +170,13 @@ namespace Code123.Controllers
 
         private IActionResult RedirectByRole(bool isAdmin, bool isStudent)
         {
-            if (isAdmin) return RedirectToAction("Dashboard", "Admin");
-            if (isStudent) return RedirectToAction("Dashboard", "Student");
-            return RedirectToAction("Index", "Home"); // e.g. Instructor (no dashboard yet)
+            if (isAdmin)
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+
+            if (isStudent)
+                return RedirectToAction("Index", "Dashboard", new { area = "Student" });
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }
