@@ -1,8 +1,21 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Welcome";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center py-5">
+    <h1 class="display-4">Welcome to Code123</h1>
+    <p class="lead">Learn, build, and manage, all in one place.</p>
+
+    @if (User.Identity?.IsAuthenticated != true)
+    {
+        <div class="mt-4">
+            <a asp-controller="Auth" asp-action="Login" class="btn btn-primary btn-lg me-2">Log In</a>
+            <a asp-controller="Auth" asp-action="Signup" class="btn btn-outline-primary btn-lg">Sign Up</a>
+        </div>
+    }
+    else
+    {
+        <p class="mt-4">You are signed in as <strong>@User.Identity.Name</strong>.</p>
+    }
 </div>
+

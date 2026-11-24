@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Student Dashboard";
+    var fullName = User.FindFirst("FullName")?.Value ?? User.Identity?.Name;
+}
+
+<h2 class="mb-4">Student Dashboard</h2>
+
+<div class="alert alert-info">Welcome back, <strong>@fullName</strong>!</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">My Courses</h5>
+                <p class="card-text">Your enrolled courses will appear here.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Assignments</h5>
+                <p class="card-text">Upcoming deadlines and submissions.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Grades</h5>
+                <p class="card-text">Track your progress and results.</p>
+            </div>
+        </div>
+    </div>
+</div>

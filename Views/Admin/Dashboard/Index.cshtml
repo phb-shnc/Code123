@@ -51,3 +51,40 @@
         }
     </div>
 </section>
+
+<section class="mt-8" aria-labelledby="recent-users">
+    <h2 id="recent-users" class="text-lg font-semibold">Recent users</h2>
+
+    <div class="mt-3 overflow-x-auto rounded-xl border border-stone-200 bg-white">
+        <table class="min-w-full text-left text-sm">
+            <thead class="border-b border-stone-200 bg-stone-50 text-stone-600">
+                <tr>
+                    <th scope="col" class="px-4 py-3 font-medium">Name</th>
+                    <th scope="col" class="px-4 py-3 font-medium">Username</th>
+                    <th scope="col" class="px-4 py-3 font-medium">Email</th>
+                    <th scope="col" class="px-4 py-3 font-medium">Roles</th>
+                    <th scope="col" class="px-4 py-3 font-medium">Joined (UTC)</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+                @foreach (var u in Model.RecentUsers)
+                {
+                    <tr>
+                        <td class="px-4 py-3 font-medium">@u.Name</td>
+                        <td class="px-4 py-3 text-stone-600">@u.Username</td>
+                        <td class="px-4 py-3 text-stone-600">@u.Email</td>
+                        <td class="px-4 py-3 text-stone-600">@u.Roles</td>
+                        <td class="px-4 py-3 text-stone-600">@u.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+
+                @if (!Model.RecentUsers.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="px-4 py-6 text-center text-stone-500">No users yet.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
