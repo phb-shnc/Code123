@@ -1,4 +1,5 @@
 using Code123.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 namespace Code123
@@ -12,9 +13,21 @@ namespace Code123
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // Configure Entity Framework and SQL Server
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // Configure Cookie Authentication
+            builder.Services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Auth/Login";
+                    options.AccessDeniedPath = "/Auth/AccessDenied";
+                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                    options.SlidingExpiration = true;
+                    options.Cookie.HttpOnly = true;
+                });
 
             var app = builder.Build();
 
@@ -29,6 +42,8 @@ namespace Code123
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            // Authentication must come BEFORE Authorization
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
