@@ -68,7 +68,8 @@
                                         Edit
                                     </button>
 
-                                    <form asp-controller="Users"
+                                    <form asp-area="Admin"
+                                          asp-controller="Users"
                                           asp-action="Delete"
                                           asp-route-id="@user.Id"
                                           method="post"
@@ -133,7 +134,8 @@
                                         Edit
                                     </button>
 
-                                    <form asp-controller="Users"
+                                    <form asp-area="Admin"
+                                          asp-controller="Users"
                                           asp-action="Delete"
                                           asp-route-id="@user.Id"
                                           method="post"
@@ -153,9 +155,8 @@
     </div>
 </section>
 
-
 <dialog id="userModal" class="w-full max-w-xl rounded-xl p-0 shadow-xl backdrop:bg-black/40">
-    <form id="userForm" method="post" action="/Users/Create" class="p-6">
+    <form id="userForm" method="post" action="/Admin/Users/Create" class="p-6">
         @Html.AntiForgeryToken()
 
         <div class="mb-5 flex items-center justify-between">
@@ -194,14 +195,18 @@
     const passwordHint = document.getElementById("passwordHint");
 
     function openCreateModal() {
-        userForm.action = "/Users/Create";
+        userForm.action = "/Admin/Users/Create";
         userForm.reset();
 
         document.getElementById("userModalTitle").textContent = "Create User";
 
-        passwordInput.required = true;
-        passwordInput.placeholder = "Enter password";
-        passwordHint.textContent = "Password is required and must contain at least 8 characters.";
+        if (passwordInput) {
+            passwordInput.required = true;
+            passwordInput.placeholder = "Enter password";
+        }
+        if (passwordHint) {
+            passwordHint.textContent = "Password is required and must contain at least 8 characters.";
+        }
 
         userModal.showModal();
     }
@@ -214,7 +219,7 @@
         button.addEventListener("click", () => {
             const id = button.dataset.id;
 
-            userForm.action = `/Users/Edit/${id}`;
+            userForm.action = `/Admin/Users/Edit/${id}`;
             userForm.reset();
 
             document.getElementById("userModalTitle").textContent = "Edit User";
@@ -223,10 +228,14 @@
             userForm.querySelector('[name="Email"]').value = button.dataset.email;
             userForm.querySelector('[name="Role"]').value = button.dataset.role;
 
-            passwordInput.value = "";
-            passwordInput.required = false;
-            passwordInput.placeholder = "Leave blank to keep current password";
-            passwordHint.textContent = "Leave blank if you do not want to change the password.";
+            if (passwordInput) {
+                passwordInput.value = "";
+                passwordInput.required = false;
+                passwordInput.placeholder = "Leave blank to keep current password";
+            }
+            if (passwordHint) {
+                passwordHint.textContent = "Leave blank if you do not want to change the password.";
+            }
 
             userModal.showModal();
         });

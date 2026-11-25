@@ -1,87 +1,180 @@
-﻿using Code123.Controllers;
-using Code123.Data;
+﻿using Code123.Data;
 using Code123.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BCryptNet = BCrypt.Net.BCrypt;
 
-namespace Code123.Areas.Admin.Controllers;
-
-[Area("Admin")]
-[Authorize(Roles = "Admin")]
-public class UsersController(ApplicationDbContext context)
-    : CrudController<User>(context)
+namespace Code123.Areas.Admin.Controllers
 {
-    private const int StudentRoleId = 1; // seeded in ApplicationDbContext
-
-    protected override string DisplayName => "User";
-
-    protected override IQueryable<User> GetQuery() =>
-        DbSet.AsNoTracking()
-            .Include(u => u.UserRoles)
-                .ThenInclude(ur => ur.Role)
-            .OrderBy(u => u.Name);
-
-    protected override async Task ValidateAsync(User model, int? id)
+    [Area("Admin")]
+    [Authorize(Roles = "Admin")]
+    public class UsersController : Controller
     {
-        model.Email = (model.Email ?? string.Empty).Trim().ToLowerInvariant();
-        model.Username = (model.Username ?? string.Empty).Trim();
+        private readonly ApplicationDbContext _context;
+        private readonly PasswordHasher<UserModel> _passwordHasher = new();
+        private const string V = "~/Views/Admin/Users/";
 
-        if (await Context.Users.AnyAsync(u => u.Email == model.Email && u.Id != id))
+        public UsersController(ApplicationDbContext context)
         {
-            ModelState.AddModelError(nameof(model.Email), "This email is already registered.");
+            _context = context;
         }
 
-        if (await Context.Users.AnyAsync(u => u.Username == model.Username && u.Id != id))
+        [HttpGet]
+        public async Task<IActionResult> Index()
         {
-            ModelState.AddModelError(nameof(model.Username), "This username is already taken.");
+            // Fetch database entities and map them to UserModel for the view
+            var users = await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role) // Assuming navigation properties exist
+                .AsNoTracking()
+                .Select(u => new UserModel
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Username = u.Username,
+                    Email = u.Email,
+                    // Pulling the first role name or default to Student if none assigned
+                    Role = u.UserRoles.Select(ur => ur.Role.RoleName).FirstOrDefault() ?? UserRoles.Student
+                })
+                .ToListAsync();
+
+            return View(V + "Index.cshtml", users);
         }
 
-        if (id is null && string.IsNullOrWhiteSpace(model.Password))
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(UserModel model)
         {
-            ModelState.AddModelError(nameof(model.Password), "Password is required for new users.");
-        }
-    }
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Please provide valid user information.";
+                return RedirectToAction(nameof(Index));
+            }
 
-    protected override void OnCreating(User model)
-    {
-        if (!string.IsNullOrWhiteSpace(model.Password))
+            // Map incoming UserModel view data to the database User entity
+            var userEntity = new User
+            {
+                Name = model.Name,
+                Username = string.IsNullOrWhiteSpace(model.Username) ? model.Email : model.Username,
+                Email = model.Email,
+                PasswordHash = _passwordHasher.HashPassword(model, model.Password ?? "DefaultPassword123!")
+            };
+
+            // Find the Role entity in the database matching model.Role ("Admin" or "Student")
+            var roleEntity = await _context.Roles
+                .FirstOrDefaultAsync(r => r.RoleName == model.Role);
+
+            // Link the role to the user via the UserRoles join table
+            if (roleEntity != null)
+            {
+                userEntity.UserRoles.Add(new UserRole
+                {
+                    User = userEntity,
+                    Role = roleEntity
+                });
+            }
+
+            _context.Users.Add(userEntity);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "User created successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            model.PasswordHash = BCryptNet.HashPassword(model.Password);
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var model = new UserModel
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.UserRoles.Select(ur => ur.Role.RoleName).FirstOrDefault() ?? UserRoles.Student
+            };
+
+            return View(V + "Edit.cshtml", model);
         }
 
-        // New users start as Students so they can actually sign in
-        if (!model.UserRoles.Any())
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, UserModel model)
         {
-            model.UserRoles.Add(new UserRole { RoleId = StudentRoleId });
+            if (id != model.Id)
+            {
+                return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Please provide valid user information.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var userEntity = await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (userEntity == null)
+            {
+                return NotFound();
+            }
+
+            userEntity.Name = model.Name;
+            userEntity.Username = string.IsNullOrWhiteSpace(model.Username) ? model.Email : model.Username;
+            userEntity.Email = model.Email;
+
+            // Update password only if a new one is provided
+            if (!string.IsNullOrWhiteSpace(model.Password))
+            {
+                userEntity.PasswordHash = _passwordHasher.HashPassword(model, model.Password);
+            }
+
+            // Update Role
+            userEntity.UserRoles.Clear();
+            var roleEntity = await _context.Roles
+                .FirstOrDefaultAsync(r => r.RoleName == model.Role);
+
+            if (roleEntity != null)
+            {
+                userEntity.UserRoles.Add(new UserRole
+                {
+                    User = userEntity,
+                    Role = roleEntity
+                });
+            }
+
+            _context.Update(userEntity);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "User updated successfully.";
+            return RedirectToAction(nameof(Index));
         }
-    }
 
-    protected override void Apply(User existing, User model)
-    {
-        existing.Name = model.Name;
-        existing.Username = model.Username;
-        existing.Email = model.Email;
-
-        if (!string.IsNullOrWhiteSpace(model.Password))
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
         {
-            existing.PasswordHash = BCryptNet.HashPassword(model.Password);
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "User deleted successfully.";
+            }
+            return RedirectToAction(nameof(Index));
         }
-    }
-
-    protected override async Task<string?> CheckDeleteAsync(User entity)
-    {
-        // Ask the database directly, so this doesn't depend on what was loaded
-        bool isAdmin = await Context.UserRoles
-            .AnyAsync(ur => ur.UserId == entity.Id && ur.Role.RoleName == "Admin");
-
-        if (!isAdmin)
-            return null;
-
-        int adminCount = await Context.UserRoles
-            .CountAsync(ur => ur.Role.RoleName == "Admin");
-
-        return adminCount <= 1 ? "You cannot delete the last Admin." : null;
     }
 }

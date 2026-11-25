@@ -10,7 +10,6 @@ namespace Code123.Models
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
 
-        // Allows binding plaintext passwords from forms safely without DB migration
         [NotMapped]
         public string? Password { get; set; }
 
