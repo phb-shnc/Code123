@@ -1,12 +1,16 @@
 ﻿
+using Code123.Controllers;
 using Code123.Data;
 using Code123.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace Code123.Controllers;
+namespace Code123.Areas.Admin.Controllers;
 
+[Area("Admin")]
+[Authorize(Roles = "Admin")]
 public class LessonsController(ApplicationDbContext context) : CrudController<LessonModel>(context)
 {
     protected override string DisplayName => "Lesson";
@@ -21,7 +25,7 @@ public class LessonsController(ApplicationDbContext context) : CrudController<Le
 
     protected override async Task PopulateLookupsAsync(LessonModel model)
     {
-        var units = await context.Units
+        var units = await Context.Units
             .AsNoTracking()
             .Include(u => u.LearningPathsModel)
             .OrderBy(u => u.LearningPathId)
@@ -62,7 +66,6 @@ public class LessonsController(ApplicationDbContext context) : CrudController<Le
     public override async Task<IActionResult> Index()
     {
         await PopulateLookupsAsync(new LessonModel());
-
         return await base.Index();
     }
 }

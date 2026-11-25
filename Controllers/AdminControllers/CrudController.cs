@@ -1,10 +1,13 @@
 ﻿using Code123.Data;
 using Code123.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Code123.Controllers;
 
+[AutoValidateAntiforgeryToken]
 public abstract class CrudController<T> : Controller where T : class, IEntity, new()
 {
     // Store context via a protected property initialized by the constructor
@@ -47,9 +50,15 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
     [HttpGet]
     public virtual async Task<IActionResult> Create()
     {
+        var path = GetAdminViewPath("Create");
+
+        // Modal-only pages have no Create view, so send them to the list
+        if (!ViewExists(path))
+            return RedirectToAction(nameof(Index));
+
         var model = new T();
         await PopulateLookupsAsync(model);
-        return View(GetAdminViewPath("Create"), model);
+        return View(path, model);
     }
 
     // Create (HttpPost)
@@ -63,7 +72,7 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
             DbSet.Add(model);
             if (await TrySaveAsync())
             {
-                TempData["SuccessMessage"] = $"{DisplayName} created successfully";
+                SetSuccess($"{DisplayName} created successfully.");
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -74,10 +83,16 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
     [HttpGet]
     public virtual async Task<IActionResult> Edit(int id)
     {
+        var path = GetAdminViewPath("Edit");
+
+        // Modal-only pages have no Edit view, so send them to the list
+        if (!ViewExists(path))
+            return RedirectToAction(nameof(Index));
+
         var entity = await DbSet.FindAsync(id);
         if (entity == null) return NotFound();
         await PopulateLookupsAsync(entity);
-        return View(GetAdminViewPath("Edit"), entity);
+        return View(path, entity);
     }
 
     // Edit (HttpPost)
@@ -94,7 +109,7 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
             Apply(existing, model);
             if (await TrySaveAsync())
             {
-                TempData["SuccessMessage"] = $"{DisplayName} updated successfully";
+                SetSuccess($"{DisplayName} updated successfully.");
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -110,25 +125,63 @@ public abstract class CrudController<T> : Controller where T : class, IEntity, n
 
         if (await CheckDeleteAsync(entity) is { } reason)
         {
-            TempData["ErrorMessage"] = reason;
+            SetError(reason);
             return RedirectToAction(nameof(Index));
         }
 
         DbSet.Remove(entity);
         if (await TrySaveAsync())
-            TempData["SuccessMessage"] = $"{DisplayName} deleted successfully.";
+            SetSuccess($"{DisplayName} deleted successfully.");
         else
-            TempData["ErrorMessage"] = $"{DisplayName} could not be deleted.";
+            SetError($"{DisplayName} could not be deleted.");
         return RedirectToAction(nameof(Index));
     }
 
     // Helpers
+
+    // Handles a failed Create/Edit. If a full-page view exists, show it with the
+    // validation errors. Otherwise (modal-only pages) go back to the list and
+    // show the errors in the alert banner.
     private async Task<IActionResult> InvalidAsync(T model, string viewName)
     {
-        TempData["ErrorMessage"] = "Please correct the errors below.";
-        await PopulateLookupsAsync(model);
+        var errors = ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .Where(m => !string.IsNullOrWhiteSpace(m))
+            .Distinct()
+            .Take(3)
+            .ToList();
 
-        return View(GetAdminViewPath(viewName), model);
+        SetError(errors.Count > 0
+            ? "Please correct the errors: " + string.Join(" ", errors)
+            : "Please correct the errors below.");
+
+        var path = GetAdminViewPath(viewName);
+
+        if (!ViewExists(path))
+            return RedirectToAction(nameof(Index));
+
+        await PopulateLookupsAsync(model);
+        return View(path, model);
+    }
+
+    private bool ViewExists(string path)
+    {
+        var engine = HttpContext.RequestServices.GetRequiredService<ICompositeViewEngine>();
+        return engine.GetView(executingFilePath: null, viewPath: path, isMainPage: true).Success;
+    }
+
+    // Both key styles are set so either alert partial reads them
+    private void SetSuccess(string message)
+    {
+        TempData["SuccessMessage"] = message;
+        TempData["Success"] = message;
+    }
+
+    private void SetError(string message)
+    {
+        TempData["ErrorMessage"] = message;
+        TempData["Error"] = message;
     }
 
     private async Task<bool> TrySaveAsync()

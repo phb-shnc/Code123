@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Code123.Controllers
+namespace Code123.Areas.Student.Controllers
 {
-    [Authorize(Roles ="Student,Admin")]
-    public class StudentController : Controller
+    [Area("Student")]
+    [Authorize(Roles = "Student,Admin")]
+    public class DashboardController : Controller
     {
-        public IActionResult Dashboard()
+        public IActionResult Index()
         {
-            return View();
+            // Explicitly point to the global Views folder structure
+            return View("~/Views/Student/Dashboard/Index.cshtml");
         }
     }
 }

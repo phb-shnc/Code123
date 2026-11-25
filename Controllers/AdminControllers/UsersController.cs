@@ -1,13 +1,20 @@
-﻿using Code123.Data;
+﻿using Code123.Controllers;
+using Code123.Data;
 using Code123.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BCryptNet = BCrypt.Net.BCrypt;
 
-namespace Code123.Controllers.AdminControllers;
+namespace Code123.Areas.Admin.Controllers;
 
+[Area("Admin")]
+[Authorize(Roles = "Admin")]
 public class UsersController(ApplicationDbContext context)
     : CrudController<User>(context)
 {
+    private const int StudentRoleId = 1; // seeded in ApplicationDbContext
+
     protected override string DisplayName => "User";
 
     protected override IQueryable<User> GetQuery() =>
@@ -19,20 +26,21 @@ public class UsersController(ApplicationDbContext context)
     protected override async Task ValidateAsync(User model, int? id)
     {
         model.Email = (model.Email ?? string.Empty).Trim().ToLowerInvariant();
+        model.Username = (model.Username ?? string.Empty).Trim();
 
-        if (await Context.Users.AnyAsync(u =>
-            u.Email == model.Email && u.Id != id))
+        if (await Context.Users.AnyAsync(u => u.Email == model.Email && u.Id != id))
         {
-            ModelState.AddModelError(
-                nameof(model.Email), // Fixed from User.Email
-                "This email is already registered.");
+            ModelState.AddModelError(nameof(model.Email), "This email is already registered.");
+        }
+
+        if (await Context.Users.AnyAsync(u => u.Username == model.Username && u.Id != id))
+        {
+            ModelState.AddModelError(nameof(model.Username), "This username is already taken.");
         }
 
         if (id is null && string.IsNullOrWhiteSpace(model.Password))
         {
-            ModelState.AddModelError(
-                nameof(model.Password), // Fixed from User.Password
-                "Password is required for new users.");
+            ModelState.AddModelError(nameof(model.Password), "Password is required for new users.");
         }
     }
 
@@ -41,6 +49,12 @@ public class UsersController(ApplicationDbContext context)
         if (!string.IsNullOrWhiteSpace(model.Password))
         {
             model.PasswordHash = BCryptNet.HashPassword(model.Password);
+        }
+
+        // New users start as Students so they can actually sign in
+        if (!model.UserRoles.Any())
+        {
+            model.UserRoles.Add(new UserRole { RoleId = StudentRoleId });
         }
     }
 
@@ -58,21 +72,16 @@ public class UsersController(ApplicationDbContext context)
 
     protected override async Task<string?> CheckDeleteAsync(User entity)
     {
-        // Check if user is an Admin via the new UserRoles relationship
-        bool isAdmin = entity.UserRoles.Any(ur => ur.Role?.RoleName == "Admin");
+        // Ask the database directly, so this doesn't depend on what was loaded
+        bool isAdmin = await Context.UserRoles
+            .AnyAsync(ur => ur.UserId == entity.Id && ur.Role.RoleName == "Admin");
 
-        if (isAdmin)
-        {
-            int adminCount = await Context.Users
-                .Where(u => u.UserRoles.Any(ur => ur.Role != null && ur.Role.RoleName == "Admin"))
-                .CountAsync();
+        if (!isAdmin)
+            return null;
 
-            if (adminCount <= 1)
-            {
-                return "You cannot delete the last Admin.";
-            }
-        }
+        int adminCount = await Context.UserRoles
+            .CountAsync(ur => ur.Role.RoleName == "Admin");
 
-        return null;
+        return adminCount <= 1 ? "You cannot delete the last Admin." : null;
     }
 }

@@ -35,7 +35,6 @@ namespace Code123
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -47,6 +46,13 @@ namespace Code123
             app.UseAuthorization();
 
             app.MapStaticAssets();
+
+            // 1. Route for Area-based controllers (Admin & Student Dashboards)
+            app.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
+            // 2. Default route for global controllers (HomeController, AuthController, etc.)
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")

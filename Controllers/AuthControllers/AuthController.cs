@@ -171,12 +171,18 @@ namespace Code123.Controllers
         private IActionResult RedirectByRole(bool isAdmin, bool isStudent)
         {
             if (isAdmin)
-                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+            {
+                return RedirectToAction("Index", "Home");
+            }
 
+            // Students can still go directly to their dashboard or home
             if (isStudent)
-                return RedirectToAction("Index", "Dashboard", new { area = "Student" });
+            {
+                return Redirect("/Student/Dashboard");
+            }
 
             return RedirectToAction("Index", "Home");
         }
     }
+    
 }

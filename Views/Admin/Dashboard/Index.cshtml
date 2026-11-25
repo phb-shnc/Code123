@@ -1,5 +1,5 @@
 ﻿
-@model Code123.Controllers.DashboardViewModel
+@model Code123.Areas.Admin.Controllers.DashboardViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -8,7 +8,7 @@
 
     var modules = new (string Label, int Count, string Href, string Hint)[]
     {
-        ("Learning paths", Model.LearningPaths, "/admin-preview/learning-paths", "Courses learners can follow"),
+        ("Learning paths", Model.LearningPaths, Url.Action("Index", "LearningPaths", new { area = "Admin" }) ?? "#", "Courses learners can follow"),
         ("Units", Model.Units, "#", "Sections inside a path"),
         ("Lessons", Model.Lessons, "#", "Individual lesson pages"),
         ("Exercises & questions", Model.Questions, "#", "Practice and quiz items"),
@@ -23,7 +23,7 @@
     </p>
 
     <div class="mt-5 flex flex-wrap gap-3">
-        <a href="/admin-preview/learning-paths/create"
+        <a href="@Url.Action("Create", "LearningPaths", new { area = "Admin" })"
            class="rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
             New learning path
         </a>

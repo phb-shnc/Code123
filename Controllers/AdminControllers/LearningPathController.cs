@@ -1,25 +1,25 @@
-﻿
-using Code123.Data;
+﻿using Code123.Data;
 using Code123.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Code123.Controllers
+namespace Code123.Areas.Admin.Controllers
 {
-    [Route("admin-preview")]
-    public class LearningPathController : Controller
+    [Area("Admin")]
+    [Authorize(Roles = "Admin")]
+    public class LearningPathsController : Controller
     {
         private readonly ApplicationDbContext _context;
         private const string V = "~/Views/Admin/LearningPath/";
 
-        public LearningPathController(ApplicationDbContext context)
+        public LearningPathsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
         // Display all learning paths.
-        [HttpGet("learning-paths")]
-        public async Task<IActionResult> LearningPaths()
+        public async Task<IActionResult> Index()
         {
             var paths = await _context.LearningPaths
                 .AsNoTracking()
@@ -44,51 +44,25 @@ namespace Code123.Controllers
             return View(V + "Index.cshtml", paths);
         }
 
-        // Open the Create form page if needed.
-        [HttpGet("learning-paths/create")]
-        public IActionResult Create()
-        {
-            return View(V + "Form.cshtml", new LearningPathFormModel());
-        }
+        // Create and edit happen in the modal on the Index page.
+        [HttpGet]
+        public IActionResult Create() => RedirectToAction(nameof(Index), new { create = true });
 
-        // Retrieve an existing learning path for editing.
-        [HttpGet("learning-paths/edit/{id:int}")]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var path = await _context.LearningPaths
-                .AsNoTracking()
-                .FirstOrDefaultAsync(path => path.Id == id);
-
-            if (path == null)
-                return NotFound();
-
-            var model = new LearningPathFormModel
-            {
-                Id = path.Id,
-                Title = path.Title,
-                Description = path.Description,
-                Level = path.Level,
-                Status = path.Status,
-                DisplayOrder = path.DisplayOrder
-            };
-
-            return View(V + "Form.cshtml", model);
-        }
+        [HttpGet]
+        public IActionResult Edit(int id) => RedirectToAction(nameof(Index));
 
         // Create or update a learning path.
-        [HttpPost("learning-paths/save")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save(LearningPathFormModel model)
         {
             if (!ModelState.IsValid)
             {
-                TempData["Error"] =
-                    "Please provide valid learning path information.";
-
-                return RedirectToAction(nameof(LearningPaths));
+                TempData["Error"] = "Please provide valid learning path information.";
+                return RedirectToAction(nameof(Index));
             }
 
-            LearningPathModel path;
+            LearningPathModel? path;
 
             if (model.Id == 0)
             {
@@ -119,15 +93,14 @@ namespace Code123.Controllers
             }
             catch (DbUpdateException)
             {
-                TempData["Error"] =
-                    "The learning path could not be saved.";
+                TempData["Error"] = "The learning path could not be saved.";
             }
 
-            return RedirectToAction(nameof(LearningPaths));
+            return RedirectToAction(nameof(Index));
         }
 
         // Delete a learning path.
-        [HttpPost("learning-paths/delete/{id:int}")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
@@ -141,10 +114,8 @@ namespace Code123.Controllers
 
             if (hasUnits)
             {
-                TempData["Error"] =
-                    "This learning path cannot be deleted because it still contains units.";
-
-                return RedirectToAction(nameof(LearningPaths));
+                TempData["Error"] = "This learning path cannot be deleted because it still contains units.";
+                return RedirectToAction(nameof(Index));
             }
 
             _context.LearningPaths.Remove(path);
@@ -152,30 +123,14 @@ namespace Code123.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                TempData["Success"] =
-                    "Learning path deleted successfully.";
+                TempData["Success"] = "Learning path deleted successfully.";
             }
             catch (DbUpdateException)
             {
-                TempData["Error"] =
-                    "The learning path could not be deleted.";
+                TempData["Error"] = "The learning path could not be deleted.";
             }
 
-            return RedirectToAction(nameof(LearningPaths));
+            return RedirectToAction(nameof(Index));
         }
-    }
-
-    // Data displayed in the Learning Paths table.
-    public class LearningPathListItemViewModel
-    {
-        public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Level { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public int DisplayOrder { get; set; } = 1;
-        public int UnitCount { get; set; }
-        public int LessonCount { get; set; }
-        public int? StudentCount { get; set; }
     }
 }

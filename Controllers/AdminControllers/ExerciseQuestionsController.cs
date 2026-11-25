@@ -1,12 +1,16 @@
 ﻿
+using Code123.Controllers;
 using Code123.Data;
 using Code123.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace Code123.Controllers;
+namespace Code123.Areas.Admin.Controllers;
 
+[Area("Admin")]
+[Authorize(Roles = "Admin")]
 public class ExerciseQuestionsController(ApplicationDbContext context)
     : CrudController<ExerciseQuestionModel>(context)
 {
@@ -22,7 +26,7 @@ public class ExerciseQuestionsController(ApplicationDbContext context)
 
     protected override async Task PopulateLookupsAsync(ExerciseQuestionModel model)
     {
-        var lessons = await context.Lessons
+        var lessons = await Context.Lessons
             .AsNoTracking()
             .Include(l => l.UnitsModel)
                 .ThenInclude(u => u!.LearningPathsModel)
@@ -45,9 +49,7 @@ public class ExerciseQuestionsController(ApplicationDbContext context)
             model.LessonId);
     }
 
-    protected override async Task ValidateAsync(
-        ExerciseQuestionModel model,
-        int? id)
+    protected override async Task ValidateAsync(ExerciseQuestionModel model, int? id)
     {
         if (!await Context.Lessons.AnyAsync(l => l.Id == model.LessonId))
         {
@@ -57,9 +59,7 @@ public class ExerciseQuestionsController(ApplicationDbContext context)
         }
     }
 
-    protected override void Apply(
-        ExerciseQuestionModel existing,
-        ExerciseQuestionModel model)
+    protected override void Apply(ExerciseQuestionModel existing, ExerciseQuestionModel model)
     {
         existing.LessonId = model.LessonId;
         existing.QuestionText = model.QuestionText;

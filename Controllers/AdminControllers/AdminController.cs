@@ -3,16 +3,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Code123.Controllers;
+namespace Code123.Areas.Admin.Controllers;
 
+[Area("Admin")]
 [Authorize(Roles = "Admin")]
-public class AdminController(ApplicationDbContext context) : Controller
+public class DashboardController(ApplicationDbContext context) : Controller
 {
     [HttpGet]
-    public IActionResult Index() => RedirectToAction(nameof(Dashboard));
-
-    [HttpGet("/admin-preview/dashboard")]
-    public async Task<IActionResult> Dashboard()
+    public async Task<IActionResult> Index()
     {
         // Newest 5 users, with their role names
         var recent = await context.Users

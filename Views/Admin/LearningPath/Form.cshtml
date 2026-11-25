@@ -12,7 +12,7 @@
 <h1 class="text-2xl font-bold">@ViewData["Title"]</h1>
 <p class="text-sm text-stone-600">@(isNew ? "Fill in the details to add a learning path." : "Update the details and save your changes.")</p>
 
-<form asp-action="Save" method="post" class="mt-6 max-w-2xl space-y-5 rounded-xl border border-stone-200 bg-white p-6">
+<form asp-area="Admin" asp-controller="LearningPaths" asp-action="Save" method="post" class="mt-6 max-w-2xl space-y-5 rounded-xl border border-stone-200 bg-white p-6">
     <input type="hidden" asp-for="Id" />
 
     <div>
@@ -54,7 +54,7 @@
     </div>
 
     <div class="flex justify-end gap-3 border-t border-stone-100 pt-5">
-        <a href="/admin-preview/learning-paths" class="rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">Cancel</a>
+        <a asp-area="Admin" asp-controller="LearningPaths" asp-action="Index" class="rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">Cancel</a>
         <button type="submit" class="rounded-md bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2">
             @(isNew ? "Create learning path" : "Save changes")
         </button>

@@ -1,34 +1,57 @@
 @{
     ViewData["Title"] = "Student Dashboard";
     var fullName = User.FindFirst("FullName")?.Value ?? User.Identity?.Name;
+    var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "Not provided";
+    var username = User.Identity?.Name ?? "Not provided";
 }
 
 <h2 class="mb-4">Student Dashboard</h2>
 
 <div class="alert alert-info">Welcome back, <strong>@fullName</strong>!</div>
 
-<div class="row g-3">
-    <div class="col-md-4">
-        <div class="card h-100">
+<!-- Nav Tabs -->
+<ul class="nav nav-tabs mb-4" id="studentTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="learning-path-tab" data-bs-toggle="tab" data-bs-target="#learning-path" type="button" role="tab" aria-controls="learning-path" aria-selected="true">Learning Path</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Profile</button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="studentTabContent">
+    <!-- Learning Path Tab -->
+    <div class="tab-pane fade show active" id="learning-path" role="tabpanel" aria-labelledby="learning-path-tab">
+        <div class="card shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">My Courses</h5>
-                <p class="card-text">Your enrolled courses will appear here.</p>
+                <h4 class="card-title">Your Learning Path</h4>
+                <p class="card-text text-muted">Explore your enrolled modules, lessons, and track your active progress through the curriculum.</p>
+                <hr />
+                <div class="alert alert-secondary mb-0">No active learning path content found yet. Stay tuned!</div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100">
+
+    <!-- Profile Tab -->
+    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+        <div class="card shadow-sm">
             <div class="card-body">
-                <h5 class="card-title">Assignments</h5>
-                <p class="card-text">Upcoming deadlines and submissions.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Grades</h5>
-                <p class="card-text">Track your progress and results.</p>
+                <h4 class="card-title mb-3">Student Profile</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><strong>Full Name:</strong></span>
+                        <span class="text-secondary">@fullName</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><strong>Username:</strong></span>
+                        <span class="text-secondary">@username</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><strong>Email Address:</strong></span>
+                        <span class="text-secondary">@email</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
